@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package gfs;
+
+service MasterService {
+
+  rpc GetPrimary(Empty)
+      returns (PrimaryResponse);
+
+  rpc Heartbeat(ServerInfo)
+      returns (HeartbeatAck);
+
+}
+
+service ChunkService {
+
+  rpc WriteChunk(WriteRequest)
+      returns (WriteResponse);
+
+  rpc ReadChunk(ReadRequest)
+      returns (ReadResponse);
+
+  rpc ReplicateChunk(WriteRequest)
+      returns (WriteResponse);
+
+}
+
+message Empty {}
+
+message PrimaryResponse {
+  string primary_id = 1;
+  string primary_address = 2;
+}
+
+message ServerInfo {
+  string server_id = 1;
+}
+
+message HeartbeatAck {
+  string status = 1;
+}
+
+message WriteRequest {
+  string chunk_id = 1;
+  string data = 2;
+}
+
+message WriteResponse {
+  string status = 1;
+}
+
+message ReadRequest {
+  string chunk_id = 1;
+}
+
+message ReadResponse {
+  string data = 1;
+}
