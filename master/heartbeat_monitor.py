@@ -14,24 +14,24 @@ def check_servers(metadata):
 
         now = time.time()
 
-        for sid in metadata.servers:
+        for node_id in list(metadata.nodes.keys()):
 
-            if sid not in last_seen:
+            if node_id not in last_seen:
                 continue
 
-            diff = now - last_seen[sid]
+            diff = now - last_seen[node_id]
 
             if diff > 6:
 
-                if metadata.servers[sid] == "UP":
+                if metadata.nodes[node_id]["status"] == "UP":
 
-                    metadata.servers[sid] = "DOWN"
+                    metadata.nodes[node_id]["status"] = "DOWN"
 
                     print(
-                        f"[MASTER] Server {sid} DOWN"
+                        f"[MASTER] {node_id} DOWN"
                     )
 
-                    if sid == metadata.primary:
+                    if node_id == metadata.primary:
 
                         print(
                             "[MASTER] Primary failed"

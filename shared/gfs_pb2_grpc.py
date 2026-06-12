@@ -49,6 +49,16 @@ class MasterServiceStub:
                 request_serializer=gfs__pb2.Empty.SerializeToString,
                 response_deserializer=gfs__pb2.StatusResponse.FromString,
                 _registered_method=True)
+        self.RegisterNode = channel.unary_unary(
+                '/gfs.MasterService/RegisterNode',
+                request_serializer=gfs__pb2.NodeInfo.SerializeToString,
+                response_deserializer=gfs__pb2.RegisterResponse.FromString,
+                _registered_method=True)
+        self.GetNodes = channel.unary_unary(
+                '/gfs.MasterService/GetNodes',
+                request_serializer=gfs__pb2.Empty.SerializeToString,
+                response_deserializer=gfs__pb2.NodeList.FromString,
+                _registered_method=True)
 
 
 class MasterServiceServicer:
@@ -72,6 +82,18 @@ class MasterServiceServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def RegisterNode(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetNodes(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MasterServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -89,6 +111,16 @@ def add_MasterServiceServicer_to_server(servicer, server):
                     servicer.GetStatus,
                     request_deserializer=gfs__pb2.Empty.FromString,
                     response_serializer=gfs__pb2.StatusResponse.SerializeToString,
+            ),
+            'RegisterNode': grpc.unary_unary_rpc_method_handler(
+                    servicer.RegisterNode,
+                    request_deserializer=gfs__pb2.NodeInfo.FromString,
+                    response_serializer=gfs__pb2.RegisterResponse.SerializeToString,
+            ),
+            'GetNodes': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNodes,
+                    request_deserializer=gfs__pb2.Empty.FromString,
+                    response_serializer=gfs__pb2.NodeList.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -172,6 +204,60 @@ class MasterService:
             '/gfs.MasterService/GetStatus',
             gfs__pb2.Empty.SerializeToString,
             gfs__pb2.StatusResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RegisterNode(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/gfs.MasterService/RegisterNode',
+            gfs__pb2.NodeInfo.SerializeToString,
+            gfs__pb2.RegisterResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetNodes(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/gfs.MasterService/GetNodes',
+            gfs__pb2.Empty.SerializeToString,
+            gfs__pb2.NodeList.FromString,
             options,
             channel_credentials,
             insecure,

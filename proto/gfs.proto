@@ -9,8 +9,15 @@ service MasterService {
 
   rpc Heartbeat(ServerInfo)
       returns (HeartbeatAck);
+
   rpc GetStatus(Empty)
       returns (StatusResponse);
+
+  rpc RegisterNode(NodeInfo)
+      returns (RegisterResponse);
+      
+  rpc GetNodes(Empty)
+      returns (NodeList);
 
 }
 
@@ -61,6 +68,15 @@ message ReadResponse {
   string data = 1;
 }
 
+message NodeInfo {
+  string node_id = 1;
+  string address = 2;
+}
+
+message RegisterResponse {
+  string status = 1;
+}
+
 message StatusResponse {
 
   string primary = 1;
@@ -72,4 +88,16 @@ message StatusResponse {
   string server3 = 4;
 
   int32 lease_remaining = 5;
+}
+
+message NodeEntry {
+
+ string node_id = 1;
+
+ string address = 2;
+}
+
+message NodeList {
+
+ repeated NodeEntry nodes = 1;
 }

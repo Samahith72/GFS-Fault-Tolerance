@@ -2,21 +2,28 @@ from master.metadata_db import save_primary
 
 def elect_primary(metadata):
 
-    alive = []
+    alive_nodes = []
 
-    for sid, status in metadata.servers.items():
+    for node_id, node in metadata.nodes.items():
 
-        if status == "UP":
-            alive.append(int(sid))
+        if node["status"] == "UP":
 
-    if not alive:
+            alive_nodes.append(node_id)
+
+    print(
+        "[ELECTION] Alive:",
+        alive_nodes
+    )
+
+    if not alive_nodes:
         return
 
-    new_primary = str(max(alive))
+    new_primary = sorted(alive_nodes)[-1]
 
     if metadata.primary != new_primary:
 
         metadata.primary = new_primary
+
         save_primary(new_primary)
 
         print(

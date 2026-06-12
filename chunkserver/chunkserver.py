@@ -4,6 +4,7 @@ import time
 import os
 import argparse
 from concurrent import futures
+import socket
 
 from shared import gfs_pb2
 from shared import gfs_pb2_grpc
@@ -14,6 +15,7 @@ MASTER_ADDRESS = "localhost:5050"
 
 server_id = None
 storage_dir = None
+NODE_ID = None
 
 def heartbeat_loop():
 
@@ -31,7 +33,7 @@ def heartbeat_loop():
 
             stub.Heartbeat(
                 gfs_pb2.ServerInfo(
-                    server_id=server_id
+                    server_id=NODE_ID
                 )
             )
 
@@ -63,7 +65,7 @@ def am_i_primary():
             gfs_pb2.Empty()
         )
 
-        return response.primary_id == server_id
+        return response.primary_id == NODE_ID
 
     except Exception as e:
 
@@ -121,8 +123,8 @@ def synchronize_from_primary():
             gfs_pb2.Empty()
         )
         print(primary_response)
-        
-        if primary_response.primary_id == server_id:
+
+        if primary_response.primary_id == NODE_ID:
             return
 
         channel = grpc.insecure_channel(
@@ -155,6 +157,46 @@ def synchronize_from_primary():
 
         print(
             f"[{server_id}] Sync Failed: {e}"
+        )
+
+def register_with_master():
+
+    try:
+
+        channel = grpc.insecure_channel(
+            MASTER_ADDRESS
+        )
+
+        stub = gfs_pb2_grpc.MasterServiceStub(
+            channel
+        )
+
+        hostname = socket.gethostname()
+        NODE_ID = f"{hostname}-{server_id}"
+        #node_id = f"node-{server_id}"
+
+        address = (
+            f"localhost:"
+            f"{5000 + int(server_id)}"
+        )
+
+        response = stub.RegisterNode(
+
+            gfs_pb2.NodeInfo(
+
+                node_id=NODE_ID,
+
+                address=address
+            )
+        )
+
+        print(response.status)
+
+    except Exception as e:
+
+        print(
+            "Registration Failed:",
+            e
         )
 
 
@@ -292,6 +334,8 @@ def serve():
         )
 
         grpc_server.start()
+        register_with_master()
+
         time.sleep(2)
         synchronize_from_primary()
 
@@ -318,6 +362,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     server_id = args.id
+
+    hostname = socket.gethostname()
+
+    NODE_ID = f"{hostname}-{server_id}"
 
     storage_dir = f"storage/server{server_id}"
 

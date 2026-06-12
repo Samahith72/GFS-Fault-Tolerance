@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tgfs.proto\x12\x03gfs\"\x07\n\x05\x45mpty\">\n\x0fPrimaryResponse\x12\x12\n\nprimary_id\x18\x01 \x01(\t\x12\x17\n\x0fprimary_address\x18\x02 \x01(\t\"\x1f\n\nServerInfo\x12\x11\n\tserver_id\x18\x01 \x01(\t\"\x1e\n\x0cHeartbeatAck\x12\x0e\n\x06status\x18\x01 \x01(\t\".\n\x0cWriteRequest\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\"\x1f\n\rWriteResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x1f\n\x0bReadRequest\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\"\x1c\n\x0cReadResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"m\n\x0eStatusResponse\x12\x0f\n\x07primary\x18\x01 \x01(\t\x12\x0f\n\x07server1\x18\x02 \x01(\t\x12\x0f\n\x07server2\x18\x03 \x01(\t\x12\x0f\n\x07server3\x18\x04 \x01(\t\x12\x17\n\x0flease_remaining\x18\x05 \x01(\x05\x32\x9e\x01\n\rMasterService\x12.\n\nGetPrimary\x12\n.gfs.Empty\x1a\x14.gfs.PrimaryResponse\x12/\n\tHeartbeat\x12\x0f.gfs.ServerInfo\x1a\x11.gfs.HeartbeatAck\x12,\n\tGetStatus\x12\n.gfs.Empty\x1a\x13.gfs.StatusResponse2\xe0\x01\n\x0c\x43hunkService\x12\x33\n\nWriteChunk\x12\x11.gfs.WriteRequest\x1a\x12.gfs.WriteResponse\x12\x30\n\tReadChunk\x12\x10.gfs.ReadRequest\x1a\x11.gfs.ReadResponse\x12\x37\n\x0eReplicateChunk\x12\x11.gfs.WriteRequest\x1a\x12.gfs.WriteResponse\x12\x30\n\tSyncChunk\x12\x10.gfs.ReadRequest\x1a\x11.gfs.ReadResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tgfs.proto\x12\x03gfs\"\x07\n\x05\x45mpty\">\n\x0fPrimaryResponse\x12\x12\n\nprimary_id\x18\x01 \x01(\t\x12\x17\n\x0fprimary_address\x18\x02 \x01(\t\"\x1f\n\nServerInfo\x12\x11\n\tserver_id\x18\x01 \x01(\t\"\x1e\n\x0cHeartbeatAck\x12\x0e\n\x06status\x18\x01 \x01(\t\".\n\x0cWriteRequest\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\"\x1f\n\rWriteResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x1f\n\x0bReadRequest\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\"\x1c\n\x0cReadResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\",\n\x08NodeInfo\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x01(\t\"\"\n\x10RegisterResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"m\n\x0eStatusResponse\x12\x0f\n\x07primary\x18\x01 \x01(\t\x12\x0f\n\x07server1\x18\x02 \x01(\t\x12\x0f\n\x07server2\x18\x03 \x01(\t\x12\x0f\n\x07server3\x18\x04 \x01(\t\x12\x17\n\x0flease_remaining\x18\x05 \x01(\x05\"-\n\tNodeEntry\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x01(\t\")\n\x08NodeList\x12\x1d\n\x05nodes\x18\x01 \x03(\x0b\x32\x0e.gfs.NodeEntry2\xfb\x01\n\rMasterService\x12.\n\nGetPrimary\x12\n.gfs.Empty\x1a\x14.gfs.PrimaryResponse\x12/\n\tHeartbeat\x12\x0f.gfs.ServerInfo\x1a\x11.gfs.HeartbeatAck\x12,\n\tGetStatus\x12\n.gfs.Empty\x1a\x13.gfs.StatusResponse\x12\x34\n\x0cRegisterNode\x12\r.gfs.NodeInfo\x1a\x15.gfs.RegisterResponse\x12%\n\x08GetNodes\x12\n.gfs.Empty\x1a\r.gfs.NodeList2\xe0\x01\n\x0c\x43hunkService\x12\x33\n\nWriteChunk\x12\x11.gfs.WriteRequest\x1a\x12.gfs.WriteResponse\x12\x30\n\tReadChunk\x12\x10.gfs.ReadRequest\x1a\x11.gfs.ReadResponse\x12\x37\n\x0eReplicateChunk\x12\x11.gfs.WriteRequest\x1a\x12.gfs.WriteResponse\x12\x30\n\tSyncChunk\x12\x10.gfs.ReadRequest\x1a\x11.gfs.ReadResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -47,10 +47,18 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_READREQUEST']._serialized_end=268
   _globals['_READRESPONSE']._serialized_start=270
   _globals['_READRESPONSE']._serialized_end=298
-  _globals['_STATUSRESPONSE']._serialized_start=300
-  _globals['_STATUSRESPONSE']._serialized_end=409
-  _globals['_MASTERSERVICE']._serialized_start=412
-  _globals['_MASTERSERVICE']._serialized_end=570
-  _globals['_CHUNKSERVICE']._serialized_start=573
-  _globals['_CHUNKSERVICE']._serialized_end=797
+  _globals['_NODEINFO']._serialized_start=300
+  _globals['_NODEINFO']._serialized_end=344
+  _globals['_REGISTERRESPONSE']._serialized_start=346
+  _globals['_REGISTERRESPONSE']._serialized_end=380
+  _globals['_STATUSRESPONSE']._serialized_start=382
+  _globals['_STATUSRESPONSE']._serialized_end=491
+  _globals['_NODEENTRY']._serialized_start=493
+  _globals['_NODEENTRY']._serialized_end=538
+  _globals['_NODELIST']._serialized_start=540
+  _globals['_NODELIST']._serialized_end=581
+  _globals['_MASTERSERVICE']._serialized_start=584
+  _globals['_MASTERSERVICE']._serialized_end=835
+  _globals['_CHUNKSERVICE']._serialized_start=838
+  _globals['_CHUNKSERVICE']._serialized_end=1062
 # @@protoc_insertion_point(module_scope)
