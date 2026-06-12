@@ -22,6 +22,11 @@ from master.lease_manager import (
     get_remaining
 )
 
+from master.metadata_db import (
+    init_db,
+    load_primary
+)
+
 class MasterService(
     gfs_pb2_grpc.MasterServiceServicer
 ):
@@ -88,6 +93,9 @@ def serve():
             args=(metadata,),
             daemon=True
         ).start()
+    init_db()
+    
+    metadata.primary = load_primary()
 
     server.start()
 

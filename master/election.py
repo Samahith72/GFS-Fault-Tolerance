@@ -1,3 +1,5 @@
+from master.metadata_db import save_primary
+
 def elect_primary(metadata):
 
     alive = []
@@ -15,6 +17,7 @@ def elect_primary(metadata):
     if metadata.primary != new_primary:
 
         metadata.primary = new_primary
+        save_primary(new_primary)
 
         print(
             f"[ELECTION] New Primary = {new_primary}"
