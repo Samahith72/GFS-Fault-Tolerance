@@ -9,6 +9,15 @@ import socket
 from shared import gfs_pb2
 from shared import gfs_pb2_grpc
 
+local_master_server = None
+
+MASTER_MISSES = 0
+
+IS_MASTER = False
+
+KNOWN_NODES = set()
+
+KNOWN_NODE_ADDR = {}
 
 #from shared.config import MASTER_ADDRESS
 MASTER_ADDRESS = "localhost:5050"
@@ -16,10 +25,17 @@ MASTER_ADDRESS = "localhost:5050"
 server_id = None
 storage_dir = None
 NODE_ID = None
+#SERVER_NUM = int(server_id)
 
 def heartbeat_loop():
 
     while True:
+
+        if IS_MASTER:
+
+            time.sleep(2)
+
+            continue
 
         try:
 
@@ -50,6 +66,241 @@ def heartbeat_loop():
 
         time.sleep(2)
 
+def monitor_master():
+
+    global MASTER_MISSES
+
+    while True:
+
+        if IS_MASTER:
+
+            time.sleep(2)
+
+            continue
+
+        try:
+
+            channel = grpc.insecure_channel(
+                MASTER_ADDRESS
+            )
+
+            stub = gfs_pb2_grpc.MasterServiceStub(
+                channel
+            )
+
+            stub.MasterHeartbeat(
+                gfs_pb2.Empty()
+            )
+
+            MASTER_MISSES = 0
+
+        except Exception:
+
+            MASTER_MISSES += 1
+
+            print(
+                f"[{NODE_ID}] "
+                f"Master Miss "
+                f"{MASTER_MISSES}"
+            )
+
+            if MASTER_MISSES >= 4:
+
+                print(
+                    f"[{NODE_ID}] "
+                    f"MASTER FAILURE DETECTED"
+                )
+
+                elect_new_master()
+
+                MASTER_MISSES = 0
+
+        time.sleep(2)
+
+def elect_new_master():
+
+    global KNOWN_NODES
+
+    print(
+        f"[{NODE_ID}] Starting election"
+    )
+
+    KNOWN_NODES.add(
+        NODE_ID
+    )
+
+    print(
+        f"[{NODE_ID}] Known Nodes = "
+        f"{KNOWN_NODES}"
+    )
+
+    candidates = []
+
+    for node in KNOWN_NODES:
+
+        try:
+
+            node_num = int(
+                node.split("-")[-1]
+            )
+
+            candidates.append(
+                (node_num, node)
+            )
+
+        except Exception:
+            pass
+
+    if not candidates:
+
+        print(
+            f"[{NODE_ID}] No candidates"
+        )
+
+        return
+
+    winner = max(candidates)[1]
+
+    print(
+        f"[ELECTION] Winner = "
+        f"{winner}"
+    )
+
+    if winner == NODE_ID and not IS_MASTER:
+
+        print(
+            f"[{NODE_ID}] "
+            f"I AM THE NEW MASTER"
+        )
+
+        become_master()
+
+def membership_refresh_loop():
+
+    while True:
+
+        if IS_MASTER:
+
+            time.sleep(5)
+
+            continue
+
+        get_active_nodes()
+
+        print(
+            f"[{NODE_ID}] MEMBERSHIP:"
+        )
+
+        print(
+            KNOWN_NODES
+        )
+
+        time.sleep(5)
+
+class LocalMasterService(
+    gfs_pb2_grpc.MasterServiceServicer
+):
+    def Heartbeat(
+        self,
+        request,
+        context
+    ):
+
+        print(
+            f"[{NODE_ID}] "
+            f"FOLLOWER HEARTBEAT RECEIVED"
+        )
+
+        return gfs_pb2.HeartbeatAck(
+            status="OK"
+        )
+        
+    def GetPrimary(
+        self,
+        request,
+        context
+    ):
+
+        return gfs_pb2.PrimaryResponse(
+            primary_id=NODE_ID,
+            primary_address=f"localhost:{5000 + int(server_id)}"
+        )
+
+    def MasterHeartbeat(
+        self,
+        request,
+        context
+    ):
+
+        print(
+            f"[{NODE_ID}] "
+            f"MASTER HEARTBEAT RECEIVED"
+        )
+
+        return gfs_pb2.HeartbeatAck(
+            status="MASTER_ALIVE"
+        )
+
+    def GetNodes(
+        self,
+        request,
+        context
+    ):
+
+        response = gfs_pb2.NodeList()
+
+        for node_id in KNOWN_NODES:
+
+            entry = response.nodes.add()
+
+            entry.node_id = node_id
+
+            entry.address = (
+                KNOWN_NODE_ADDR.get(
+                    node_id,
+                    ""
+                )
+            )
+
+        return response
+
+
+def become_master():
+
+    global IS_MASTER
+    global local_master_server
+
+    if IS_MASTER:
+        return
+
+    IS_MASTER = True
+
+    print(
+        f"[{NODE_ID}] "
+        f"PROMOTING TO MASTER"
+    )
+
+    local_master_server = grpc.server(
+        futures.ThreadPoolExecutor(
+            max_workers=10
+        )
+    )
+
+    gfs_pb2_grpc.add_MasterServiceServicer_to_server(
+        LocalMasterService(),
+        local_master_server
+    )
+
+    local_master_server.add_insecure_port(
+        "[::]:5050"
+    )
+
+    local_master_server.start()
+
+    print(
+        f"[{NODE_ID}] "
+        f"MASTER STARTED ON PORT 5050"
+    )
 
 def am_i_primary():
 
@@ -90,6 +341,9 @@ def replicate_to_secondaries(
         if node.node_id == NODE_ID:
             continue
 
+        if not node.address:
+            continue
+
         try:
 
             channel = grpc.insecure_channel(
@@ -115,7 +369,7 @@ def replicate_to_secondaries(
 
             print(
                 f"[{NODE_ID}] "
-                f"replicated to "
+                f"Replicated -> "
                 f"{node.node_id}"
             )
 
@@ -125,6 +379,7 @@ def replicate_to_secondaries(
                 f"Replication failed "
                 f"to {node.node_id}: {e}"
             )
+
 def synchronize_from_primary():
 
     try:
@@ -140,6 +395,7 @@ def synchronize_from_primary():
         primary_response = master_stub.GetPrimary(
             gfs_pb2.Empty()
         )
+
         print(primary_response)
 
         if primary_response.primary_id == NODE_ID:
@@ -152,40 +408,61 @@ def synchronize_from_primary():
             )
 
             return
-        
+
         channel = grpc.insecure_channel(
             primary_response.primary_address
         )
 
-        chunk_stub = gfs_pb2_grpc.ChunkServiceStub(
-            channel
+        chunk_stub = (
+            gfs_pb2_grpc
+            .ChunkServiceStub(channel)
         )
 
-        response = chunk_stub.SyncChunk(
-            gfs_pb2.ReadRequest(
-                chunk_id="chunk1"
+        chunk_list = chunk_stub.ListChunks(
+            gfs_pb2.Empty()
+        )
+
+        if not chunk_list.chunks:
+
+            print(
+                f"[{NODE_ID}] No chunks to sync"
             )
-        )
 
-        filepath = os.path.join(
-            storage_dir,
-            "chunk1.txt"
-        )
+            return
 
-        with open(filepath, "w") as f:
-            f.write(response.data)
+        for chunk_id in chunk_list.chunks:
+
+            response = chunk_stub.SyncChunk(
+                gfs_pb2.ReadRequest(
+                    chunk_id=chunk_id
+                )
+            )
+
+            filepath = os.path.join(
+                storage_dir,
+                f"{chunk_id}.txt"
+            )
+
+            with open(filepath, "w") as f:
+                f.write(response.data)
+
+            print(
+                f"[{NODE_ID}] Synced {chunk_id}"
+            )
 
         print(
-            f"[{server_id}] Sync Complete"
+            f"[{NODE_ID}] Sync Complete"
         )
 
     except Exception as e:
 
         print(
-            f"[{server_id}] Sync Failed: {e}"
+            f"[{NODE_ID}] Sync Failed: {e}"
         )
 
 def register_with_master():
+
+    global KNOWN_NODE_ADDR
 
     try:
 
@@ -197,14 +474,18 @@ def register_with_master():
             channel
         )
 
-        hostname = socket.gethostname()
-        NODE_ID = f"{hostname}-{server_id}"
-        #node_id = f"node-{server_id}"
+        my_ip = socket.gethostbyname(
+            socket.gethostname()
+        )
 
         address = (
-            f"localhost:"
+            f"{my_ip}:"
             f"{5000 + int(server_id)}"
         )
+
+        KNOWN_NODE_ADDR[
+            NODE_ID
+        ] = address
 
         response = stub.RegisterNode(
 
@@ -216,7 +497,9 @@ def register_with_master():
             )
         )
 
-        print(response.status)
+        print(
+            response.status
+        )
 
     except Exception as e:
 
@@ -226,6 +509,9 @@ def register_with_master():
         )
 
 def get_active_nodes():
+
+    global KNOWN_NODES
+    global KNOWN_NODE_ADDR
 
     try:
 
@@ -240,6 +526,16 @@ def get_active_nodes():
         response = stub.GetNodes(
             gfs_pb2.Empty()
         )
+
+        for node in response.nodes:
+
+            KNOWN_NODES.add(
+                node.node_id
+            )
+
+            KNOWN_NODE_ADDR[
+                node.node_id
+            ] = node.address
 
         return response.nodes
 
@@ -362,6 +658,28 @@ class ChunkService(
             return gfs_pb2.ReadResponse(
                 data=data
             ) 
+    def ListChunks(
+        self,
+        request,
+        context
+    ):
+
+        chunks = []
+
+        for file in os.listdir(storage_dir):
+
+            if file.endswith(".txt"):
+
+                chunks.append(
+                    file.replace(
+                        ".txt",
+                        ""
+                    )
+                )
+
+        return gfs_pb2.ChunkList(
+            chunks=chunks
+        )
     
     
     
@@ -387,7 +705,7 @@ def serve():
 
         grpc_server.start()
         register_with_master()
-
+        get_active_nodes()
         time.sleep(2)
         synchronize_from_primary()
 
@@ -397,6 +715,14 @@ def serve():
 
         threading.Thread(
             target=heartbeat_loop,
+            daemon=True
+        ).start()
+        threading.Thread(
+            target=monitor_master,
+            daemon=True
+        ).start()
+        threading.Thread(
+            target=membership_refresh_loop,
             daemon=True
         ).start()
 

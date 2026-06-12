@@ -59,6 +59,11 @@ class MasterServiceStub:
                 request_serializer=gfs__pb2.Empty.SerializeToString,
                 response_deserializer=gfs__pb2.NodeList.FromString,
                 _registered_method=True)
+        self.MasterHeartbeat = channel.unary_unary(
+                '/gfs.MasterService/MasterHeartbeat',
+                request_serializer=gfs__pb2.Empty.SerializeToString,
+                response_deserializer=gfs__pb2.HeartbeatAck.FromString,
+                _registered_method=True)
 
 
 class MasterServiceServicer:
@@ -94,6 +99,12 @@ class MasterServiceServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def MasterHeartbeat(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MasterServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -121,6 +132,11 @@ def add_MasterServiceServicer_to_server(servicer, server):
                     servicer.GetNodes,
                     request_deserializer=gfs__pb2.Empty.FromString,
                     response_serializer=gfs__pb2.NodeList.SerializeToString,
+            ),
+            'MasterHeartbeat': grpc.unary_unary_rpc_method_handler(
+                    servicer.MasterHeartbeat,
+                    request_deserializer=gfs__pb2.Empty.FromString,
+                    response_serializer=gfs__pb2.HeartbeatAck.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -268,6 +284,33 @@ class MasterService:
             metadata,
             _registered_method=True)
 
+    @staticmethod
+    def MasterHeartbeat(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/gfs.MasterService/MasterHeartbeat',
+            gfs__pb2.Empty.SerializeToString,
+            gfs__pb2.HeartbeatAck.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
 
 class ChunkServiceStub:
     """Missing associated documentation comment in .proto file."""
@@ -298,6 +341,11 @@ class ChunkServiceStub:
                 request_serializer=gfs__pb2.ReadRequest.SerializeToString,
                 response_deserializer=gfs__pb2.ReadResponse.FromString,
                 _registered_method=True)
+        self.ListChunks = channel.unary_unary(
+                '/gfs.ChunkService/ListChunks',
+                request_serializer=gfs__pb2.Empty.SerializeToString,
+                response_deserializer=gfs__pb2.ChunkList.FromString,
+                _registered_method=True)
 
 
 class ChunkServiceServicer:
@@ -327,6 +375,12 @@ class ChunkServiceServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ListChunks(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ChunkServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -349,6 +403,11 @@ def add_ChunkServiceServicer_to_server(servicer, server):
                     servicer.SyncChunk,
                     request_deserializer=gfs__pb2.ReadRequest.FromString,
                     response_serializer=gfs__pb2.ReadResponse.SerializeToString,
+            ),
+            'ListChunks': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListChunks,
+                    request_deserializer=gfs__pb2.Empty.FromString,
+                    response_serializer=gfs__pb2.ChunkList.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -459,6 +518,33 @@ class ChunkService:
             '/gfs.ChunkService/SyncChunk',
             gfs__pb2.ReadRequest.SerializeToString,
             gfs__pb2.ReadResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListChunks(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/gfs.ChunkService/ListChunks',
+            gfs__pb2.Empty.SerializeToString,
+            gfs__pb2.ChunkList.FromString,
             options,
             channel_credentials,
             insecure,

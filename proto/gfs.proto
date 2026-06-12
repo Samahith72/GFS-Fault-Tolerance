@@ -15,9 +15,11 @@ service MasterService {
 
   rpc RegisterNode(NodeInfo)
       returns (RegisterResponse);
-      
+
   rpc GetNodes(Empty)
       returns (NodeList);
+  rpc MasterHeartbeat(Empty)
+      returns (HeartbeatAck);
 
 }
 
@@ -33,7 +35,8 @@ service ChunkService {
       returns (WriteResponse);
   rpc SyncChunk(ReadRequest)
       returns (ReadResponse);
-
+  rpc ListChunks(Empty)
+      returns (ChunkList);
 }
 
 message Empty {}
@@ -75,6 +78,11 @@ message NodeInfo {
 
 message RegisterResponse {
   string status = 1;
+}
+
+message ChunkList {
+
+  repeated string chunks = 1;
 }
 
 message StatusResponse {

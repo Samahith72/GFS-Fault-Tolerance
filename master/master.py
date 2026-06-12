@@ -36,6 +36,16 @@ class MasterService(
     gfs_pb2_grpc.MasterServiceServicer
 ):
     
+    def MasterHeartbeat(
+        self,
+        request,
+        context
+    ):
+
+        return gfs_pb2.HeartbeatAck(
+            status="MASTER_ALIVE"
+        )
+        
     def GetNodes(
     self,
     request,
