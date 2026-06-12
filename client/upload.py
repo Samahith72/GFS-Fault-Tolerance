@@ -8,7 +8,6 @@ MASTER = "localhost:5050"
 
 CHUNK_SIZE = 1024
 
-
 filename = input(
     "File Path: "
 )
@@ -18,6 +17,27 @@ base = os.path.basename(
 )
 
 chunks = []
+
+# Connect to Master
+master_channel = grpc.insecure_channel(
+    MASTER
+)
+
+master = gfs_pb2_grpc.MasterServiceStub(
+    master_channel
+)
+
+nodes = master.GetNodes(
+    gfs_pb2.Empty()
+).nodes
+
+if not nodes:
+
+    print(
+        "No active chunk servers"
+    )
+
+    exit()
 
 with open(
     filename,
@@ -43,8 +63,12 @@ with open(
             chunk_name
         )
 
+        target = nodes[
+            index % len(nodes)
+        ]
+
         channel = grpc.insecure_channel(
-            "localhost:5001"
+            target.address
         )
 
         stub = (
@@ -64,22 +88,12 @@ with open(
         )
 
         print(
-            f"Uploaded "
             f"{chunk_name}"
+            f" -> "
+            f"{target.node_id}"
         )
 
         index += 1
-
-channel = grpc.insecure_channel(
-    MASTER
-)
-
-master = (
-    gfs_pb2_grpc
-    .MasterServiceStub(
-        channel
-    )
-)
 
 master.RegisterFile(
 

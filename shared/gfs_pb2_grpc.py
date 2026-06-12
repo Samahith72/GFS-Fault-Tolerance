@@ -74,6 +74,21 @@ class MasterServiceStub:
                 request_serializer=gfs__pb2.FileRequest.SerializeToString,
                 response_deserializer=gfs__pb2.FileMetadata.FromString,
                 _registered_method=True)
+        self.ListFiles = channel.unary_unary(
+                '/gfs.MasterService/ListFiles',
+                request_serializer=gfs__pb2.Empty.SerializeToString,
+                response_deserializer=gfs__pb2.FileList.FromString,
+                _registered_method=True)
+        self.DeleteFile = channel.unary_unary(
+                '/gfs.MasterService/DeleteFile',
+                request_serializer=gfs__pb2.FileRequest.SerializeToString,
+                response_deserializer=gfs__pb2.StatusResponse.FromString,
+                _registered_method=True)
+        self.DeleteChunk = channel.unary_unary(
+                '/gfs.MasterService/DeleteChunk',
+                request_serializer=gfs__pb2.ReadRequest.SerializeToString,
+                response_deserializer=gfs__pb2.WriteResponse.FromString,
+                _registered_method=True)
 
 
 class MasterServiceServicer:
@@ -127,6 +142,24 @@ class MasterServiceServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ListFiles(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteFile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteChunk(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MasterServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -169,6 +202,21 @@ def add_MasterServiceServicer_to_server(servicer, server):
                     servicer.GetFile,
                     request_deserializer=gfs__pb2.FileRequest.FromString,
                     response_serializer=gfs__pb2.FileMetadata.SerializeToString,
+            ),
+            'ListFiles': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListFiles,
+                    request_deserializer=gfs__pb2.Empty.FromString,
+                    response_serializer=gfs__pb2.FileList.SerializeToString,
+            ),
+            'DeleteFile': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteFile,
+                    request_deserializer=gfs__pb2.FileRequest.FromString,
+                    response_serializer=gfs__pb2.StatusResponse.SerializeToString,
+            ),
+            'DeleteChunk': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteChunk,
+                    request_deserializer=gfs__pb2.ReadRequest.FromString,
+                    response_serializer=gfs__pb2.WriteResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -387,6 +435,87 @@ class MasterService:
             '/gfs.MasterService/GetFile',
             gfs__pb2.FileRequest.SerializeToString,
             gfs__pb2.FileMetadata.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListFiles(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/gfs.MasterService/ListFiles',
+            gfs__pb2.Empty.SerializeToString,
+            gfs__pb2.FileList.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteFile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/gfs.MasterService/DeleteFile',
+            gfs__pb2.FileRequest.SerializeToString,
+            gfs__pb2.StatusResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteChunk(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/gfs.MasterService/DeleteChunk',
+            gfs__pb2.ReadRequest.SerializeToString,
+            gfs__pb2.WriteResponse.FromString,
             options,
             channel_credentials,
             insecure,

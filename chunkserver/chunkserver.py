@@ -551,6 +551,34 @@ def get_active_nodes():
 class ChunkService(
     gfs_pb2_grpc.ChunkServiceServicer
 ):
+    
+    def DeleteChunk(
+        self,
+        request,
+        context
+    ):
+
+        filepath = os.path.join(
+            storage_dir,
+            f"{request.chunk_id}.txt"
+        )
+
+        if os.path.exists(
+            filepath
+        ):
+
+            os.remove(
+                filepath
+            )
+
+            print(
+                f"[{NODE_ID}] Deleted "
+                f"{request.chunk_id}"
+            )
+
+        return gfs_pb2.WriteResponse(
+            status="DELETED"
+        )
             
     def WriteChunk(
         self,

@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tgfs.proto\x12\x03gfs\"\x07\n\x05\x45mpty\">\n\x0fPrimaryResponse\x12\x12\n\nprimary_id\x18\x01 \x01(\t\x12\x17\n\x0fprimary_address\x18\x02 \x01(\t\"\x1f\n\nServerInfo\x12\x11\n\tserver_id\x18\x01 \x01(\t\"\x1e\n\x0cHeartbeatAck\x12\x0e\n\x06status\x18\x01 \x01(\t\".\n\x0cWriteRequest\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\"\x1f\n\rWriteResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x1f\n\x0bReadRequest\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\"\x1c\n\x0cReadResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\",\n\x08NodeInfo\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x01(\t\"\"\n\x10RegisterResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x1b\n\tChunkList\x12\x0e\n\x06\x63hunks\x18\x01 \x03(\t\"\x1f\n\x0b\x46ileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"0\n\x0c\x46ileMetadata\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x0e\n\x06\x63hunks\x18\x02 \x03(\t\"m\n\x0eStatusResponse\x12\x0f\n\x07primary\x18\x01 \x01(\t\x12\x0f\n\x07server1\x18\x02 \x01(\t\x12\x0f\n\x07server2\x18\x03 \x01(\t\x12\x0f\n\x07server3\x18\x04 \x01(\t\x12\x17\n\x0flease_remaining\x18\x05 \x01(\x05\"-\n\tNodeEntry\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x01(\t\")\n\x08NodeList\x12\x1d\n\x05nodes\x18\x01 \x03(\x0b\x32\x0e.gfs.NodeEntry2\x95\x03\n\rMasterService\x12.\n\nGetPrimary\x12\n.gfs.Empty\x1a\x14.gfs.PrimaryResponse\x12/\n\tHeartbeat\x12\x0f.gfs.ServerInfo\x1a\x11.gfs.HeartbeatAck\x12,\n\tGetStatus\x12\n.gfs.Empty\x1a\x13.gfs.StatusResponse\x12\x34\n\x0cRegisterNode\x12\r.gfs.NodeInfo\x1a\x15.gfs.RegisterResponse\x12%\n\x08GetNodes\x12\n.gfs.Empty\x1a\r.gfs.NodeList\x12\x30\n\x0fMasterHeartbeat\x12\n.gfs.Empty\x1a\x11.gfs.HeartbeatAck\x12\x36\n\x0cRegisterFile\x12\x11.gfs.FileMetadata\x1a\x13.gfs.StatusResponse\x12.\n\x07GetFile\x12\x10.gfs.FileRequest\x1a\x11.gfs.FileMetadata2\x8a\x02\n\x0c\x43hunkService\x12\x33\n\nWriteChunk\x12\x11.gfs.WriteRequest\x1a\x12.gfs.WriteResponse\x12\x30\n\tReadChunk\x12\x10.gfs.ReadRequest\x1a\x11.gfs.ReadResponse\x12\x37\n\x0eReplicateChunk\x12\x11.gfs.WriteRequest\x1a\x12.gfs.WriteResponse\x12\x30\n\tSyncChunk\x12\x10.gfs.ReadRequest\x1a\x11.gfs.ReadResponse\x12(\n\nListChunks\x12\n.gfs.Empty\x1a\x0e.gfs.ChunkListb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tgfs.proto\x12\x03gfs\"\x07\n\x05\x45mpty\">\n\x0fPrimaryResponse\x12\x12\n\nprimary_id\x18\x01 \x01(\t\x12\x17\n\x0fprimary_address\x18\x02 \x01(\t\"\x1f\n\nServerInfo\x12\x11\n\tserver_id\x18\x01 \x01(\t\"\x1e\n\x0cHeartbeatAck\x12\x0e\n\x06status\x18\x01 \x01(\t\".\n\x0cWriteRequest\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\"\x1f\n\rWriteResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x19\n\x08\x46ileList\x12\r\n\x05\x66iles\x18\x01 \x03(\t\"\x1f\n\x0bReadRequest\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\"\x1c\n\x0cReadResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\",\n\x08NodeInfo\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x01(\t\"\"\n\x10RegisterResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x1b\n\tChunkList\x12\x0e\n\x06\x63hunks\x18\x01 \x03(\t\"\x1f\n\x0b\x46ileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"0\n\x0c\x46ileMetadata\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x0e\n\x06\x63hunks\x18\x02 \x03(\t\"m\n\x0eStatusResponse\x12\x0f\n\x07primary\x18\x01 \x01(\t\x12\x0f\n\x07server1\x18\x02 \x01(\t\x12\x0f\n\x07server2\x18\x03 \x01(\t\x12\x0f\n\x07server3\x18\x04 \x01(\t\x12\x17\n\x0flease_remaining\x18\x05 \x01(\x05\"-\n\tNodeEntry\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x02 \x01(\t\")\n\x08NodeList\x12\x1d\n\x05nodes\x18\x01 \x03(\x0b\x32\x0e.gfs.NodeEntry2\xa7\x04\n\rMasterService\x12.\n\nGetPrimary\x12\n.gfs.Empty\x1a\x14.gfs.PrimaryResponse\x12/\n\tHeartbeat\x12\x0f.gfs.ServerInfo\x1a\x11.gfs.HeartbeatAck\x12,\n\tGetStatus\x12\n.gfs.Empty\x1a\x13.gfs.StatusResponse\x12\x34\n\x0cRegisterNode\x12\r.gfs.NodeInfo\x1a\x15.gfs.RegisterResponse\x12%\n\x08GetNodes\x12\n.gfs.Empty\x1a\r.gfs.NodeList\x12\x30\n\x0fMasterHeartbeat\x12\n.gfs.Empty\x1a\x11.gfs.HeartbeatAck\x12\x36\n\x0cRegisterFile\x12\x11.gfs.FileMetadata\x1a\x13.gfs.StatusResponse\x12.\n\x07GetFile\x12\x10.gfs.FileRequest\x1a\x11.gfs.FileMetadata\x12&\n\tListFiles\x12\n.gfs.Empty\x1a\r.gfs.FileList\x12\x33\n\nDeleteFile\x12\x10.gfs.FileRequest\x1a\x13.gfs.StatusResponse\x12\x33\n\x0b\x44\x65leteChunk\x12\x10.gfs.ReadRequest\x1a\x12.gfs.WriteResponse2\x8a\x02\n\x0c\x43hunkService\x12\x33\n\nWriteChunk\x12\x11.gfs.WriteRequest\x1a\x12.gfs.WriteResponse\x12\x30\n\tReadChunk\x12\x10.gfs.ReadRequest\x1a\x11.gfs.ReadResponse\x12\x37\n\x0eReplicateChunk\x12\x11.gfs.WriteRequest\x1a\x12.gfs.WriteResponse\x12\x30\n\tSyncChunk\x12\x10.gfs.ReadRequest\x1a\x11.gfs.ReadResponse\x12(\n\nListChunks\x12\n.gfs.Empty\x1a\x0e.gfs.ChunkListb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -43,28 +43,30 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_WRITEREQUEST']._serialized_end=202
   _globals['_WRITERESPONSE']._serialized_start=204
   _globals['_WRITERESPONSE']._serialized_end=235
-  _globals['_READREQUEST']._serialized_start=237
-  _globals['_READREQUEST']._serialized_end=268
-  _globals['_READRESPONSE']._serialized_start=270
-  _globals['_READRESPONSE']._serialized_end=298
-  _globals['_NODEINFO']._serialized_start=300
-  _globals['_NODEINFO']._serialized_end=344
-  _globals['_REGISTERRESPONSE']._serialized_start=346
-  _globals['_REGISTERRESPONSE']._serialized_end=380
-  _globals['_CHUNKLIST']._serialized_start=382
-  _globals['_CHUNKLIST']._serialized_end=409
-  _globals['_FILEREQUEST']._serialized_start=411
-  _globals['_FILEREQUEST']._serialized_end=442
-  _globals['_FILEMETADATA']._serialized_start=444
-  _globals['_FILEMETADATA']._serialized_end=492
-  _globals['_STATUSRESPONSE']._serialized_start=494
-  _globals['_STATUSRESPONSE']._serialized_end=603
-  _globals['_NODEENTRY']._serialized_start=605
-  _globals['_NODEENTRY']._serialized_end=650
-  _globals['_NODELIST']._serialized_start=652
-  _globals['_NODELIST']._serialized_end=693
-  _globals['_MASTERSERVICE']._serialized_start=696
-  _globals['_MASTERSERVICE']._serialized_end=1101
-  _globals['_CHUNKSERVICE']._serialized_start=1104
-  _globals['_CHUNKSERVICE']._serialized_end=1370
+  _globals['_FILELIST']._serialized_start=237
+  _globals['_FILELIST']._serialized_end=262
+  _globals['_READREQUEST']._serialized_start=264
+  _globals['_READREQUEST']._serialized_end=295
+  _globals['_READRESPONSE']._serialized_start=297
+  _globals['_READRESPONSE']._serialized_end=325
+  _globals['_NODEINFO']._serialized_start=327
+  _globals['_NODEINFO']._serialized_end=371
+  _globals['_REGISTERRESPONSE']._serialized_start=373
+  _globals['_REGISTERRESPONSE']._serialized_end=407
+  _globals['_CHUNKLIST']._serialized_start=409
+  _globals['_CHUNKLIST']._serialized_end=436
+  _globals['_FILEREQUEST']._serialized_start=438
+  _globals['_FILEREQUEST']._serialized_end=469
+  _globals['_FILEMETADATA']._serialized_start=471
+  _globals['_FILEMETADATA']._serialized_end=519
+  _globals['_STATUSRESPONSE']._serialized_start=521
+  _globals['_STATUSRESPONSE']._serialized_end=630
+  _globals['_NODEENTRY']._serialized_start=632
+  _globals['_NODEENTRY']._serialized_end=677
+  _globals['_NODELIST']._serialized_start=679
+  _globals['_NODELIST']._serialized_end=720
+  _globals['_MASTERSERVICE']._serialized_start=723
+  _globals['_MASTERSERVICE']._serialized_end=1274
+  _globals['_CHUNKSERVICE']._serialized_start=1277
+  _globals['_CHUNKSERVICE']._serialized_end=1543
 # @@protoc_insertion_point(module_scope)

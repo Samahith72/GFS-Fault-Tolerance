@@ -36,6 +36,80 @@ class MasterService(
     gfs_pb2_grpc.MasterServiceServicer
 ):
     
+    def DeleteFile(
+        self,
+        request,
+        context
+    ):
+
+        filename = request.filename
+
+        if filename not in metadata.file_table:
+
+            return gfs_pb2.StatusResponse(
+                primary="NOT_FOUND"
+            )
+
+        chunks = metadata.file_table[
+            filename
+        ]
+
+        for node in metadata.nodes.values():
+
+            try:
+
+                channel = grpc.insecure_channel(
+                    node["address"]
+                )
+
+                stub = (
+                    gfs_pb2_grpc
+                    .ChunkServiceStub(
+                        channel
+                    )
+                )
+
+                for chunk in chunks:
+
+                    stub.DeleteChunk(
+
+                        gfs_pb2.ReadRequest(
+                            chunk_id=chunk
+                        )
+                    )
+
+            except Exception as e:
+
+                print(
+                    f"Delete failed: {e}"
+                )
+
+        del metadata.file_table[
+            filename
+        ]
+
+        print(
+            f"[MASTER] Deleted "
+            f"{filename}"
+        )
+
+        return gfs_pb2.StatusResponse(
+            primary="OK"
+        )
+    
+    def ListFiles(
+        self,
+        request,
+        context
+    ):
+
+        return gfs_pb2.FileList(
+
+            files=list(
+                metadata.file_table.keys()
+            )
+        )
+        
     def RegisterFile(
         self,
         request,
