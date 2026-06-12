@@ -15,10 +15,35 @@ import threading
 from master.heartbeat_monitor import (
     check_servers
 )
+from master.lease_manager import (
+    lease_loop
+)
+from master.lease_manager import (
+    get_remaining
+)
 
 class MasterService(
     gfs_pb2_grpc.MasterServiceServicer
 ):
+    def GetStatus(
+    self,
+    request,
+    context
+    ):
+
+        return gfs_pb2.StatusResponse(
+
+            primary=metadata.primary,
+
+            server1=metadata.servers["1"],
+
+            server2=metadata.servers["2"],
+
+            server3=metadata.servers["3"],
+
+            lease_remaining=
+                get_remaining(metadata)
+        )
 
     def GetPrimary(self, request, context):
 
@@ -55,6 +80,11 @@ def serve():
     server.add_insecure_port("[::]:5050")
     threading.Thread(
             target=check_servers,
+            args=(metadata,),
+            daemon=True
+        ).start()
+    threading.Thread(
+            target=lease_loop,
             args=(metadata,),
             daemon=True
         ).start()

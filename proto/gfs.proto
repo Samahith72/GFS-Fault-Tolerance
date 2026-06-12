@@ -9,6 +9,8 @@ service MasterService {
 
   rpc Heartbeat(ServerInfo)
       returns (HeartbeatAck);
+  rpc GetStatus(Empty)
+      returns (StatusResponse);
 
 }
 
@@ -22,6 +24,8 @@ service ChunkService {
 
   rpc ReplicateChunk(WriteRequest)
       returns (WriteResponse);
+  rpc SyncChunk(ReadRequest)
+      returns (ReadResponse);
 
 }
 
@@ -55,4 +59,17 @@ message ReadRequest {
 
 message ReadResponse {
   string data = 1;
+}
+
+message StatusResponse {
+
+  string primary = 1;
+
+  string server1 = 2;
+
+  string server2 = 3;
+
+  string server3 = 4;
+
+  int32 lease_remaining = 5;
 }

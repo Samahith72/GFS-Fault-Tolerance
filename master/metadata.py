@@ -1,4 +1,4 @@
-# master/metadata.py
+import time
 
 class Metadata:
 
@@ -11,5 +11,7 @@ class Metadata:
             "2": "UP",
             "3": "UP"
         }
+
+        self.lease_expiry = time.time() + 10
 
 metadata = Metadata()

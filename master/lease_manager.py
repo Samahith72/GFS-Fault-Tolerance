@@ -1,18 +1,24 @@
-# master/lease_manager.py
-
 import time
 
-lease_expiry = 0
+def lease_loop(metadata):
 
-def start_lease():
+    while True:
 
-    global lease_expiry
+        metadata.lease_expiry = (
+            time.time() + 10
+        )
 
-    lease_expiry = time.time() + 10
+        print(
+            f"[LEASE] Renewed for Primary {metadata.primary}"
+        )
 
-def lease_remaining():
+        time.sleep(10)
 
-    return max(
-        0,
-        int(lease_expiry - time.time())
+def get_remaining(metadata):
+
+    remaining = int(
+        metadata.lease_expiry -
+        time.time()
     )
+
+    return max(0, remaining)
