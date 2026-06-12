@@ -27,7 +27,11 @@ from master.metadata_db import (
     init_db,
     load_primary
 )
-
+from master.metadata_db import (
+    init_db,
+    load_primary,
+    save_primary
+)
 class MasterService(
     gfs_pb2_grpc.MasterServiceServicer
 ):
@@ -68,6 +72,16 @@ class MasterService(
 
     def GetPrimary(self, request, context):
 
+        print(
+            "PRIMARY:",
+            metadata.primary
+        )
+
+        print(
+            "NODES:",
+            metadata.nodes.keys()
+        )
+
         if metadata.primary in metadata.nodes:
 
             return gfs_pb2.PrimaryResponse(
@@ -77,6 +91,10 @@ class MasterService(
                         metadata.primary
                     ]["address"]
             )
+        print(
+                f"[MASTER] Invalid Primary: "
+                f"{metadata.primary}"
+            )
 
         return gfs_pb2.PrimaryResponse(
             primary_id="",
@@ -84,10 +102,15 @@ class MasterService(
         )
 
     def Heartbeat(
-    self,
-    request,
-    context
+        self,
+        request,
+        context
     ):
+
+        print(
+            f"[MASTER] Heartbeat from "
+            f"{request.server_id}"
+        )
 
         update(request.server_id)
 
@@ -107,21 +130,36 @@ class MasterService(
         context
     ):
 
-        metadata.nodes[
-            request.node_id
-        ] = {
-            "address":
-                request.address,
-
-            "status":
-                "UP"
+        metadata.nodes[request.node_id] = {
+            "address": request.address,
+            "status": "UP"
         }
-
-        elect_primary(metadata)
 
         print(
             f"[MASTER] {request.node_id} joined"
         )
+
+        if metadata.primary is None:
+
+            metadata.primary = request.node_id
+
+            save_primary(metadata.primary)
+
+            print(
+                f"[MASTER] Initial Primary = "
+                f"{metadata.primary}"
+            )
+
+        elif metadata.primary not in metadata.nodes:
+
+            metadata.primary = request.node_id
+
+            save_primary(metadata.primary)
+
+            print(
+                f"[MASTER] Recovered Primary = "
+                f"{metadata.primary}"
+            )
 
         return gfs_pb2.RegisterResponse(
             status="REGISTERED"
@@ -142,6 +180,10 @@ def serve():
     init_db()
 
     metadata.primary = load_primary()
+
+    print(
+        f"[MASTER] Loaded Primary: {metadata.primary}"
+    )
     server.start()
 
     print("MASTER RUNNING")

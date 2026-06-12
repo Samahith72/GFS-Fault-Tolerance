@@ -31,24 +31,26 @@ def heartbeat_loop():
                 channel
             )
 
+            print(
+                f"[{NODE_ID}] Heartbeat Sent"
+            )
+
             stub.Heartbeat(
                 gfs_pb2.ServerInfo(
                     server_id=NODE_ID
                 )
             )
 
-            print(
-                f"[{server_id}] Heartbeat Sent"
-            )
-
         except Exception as e:
 
             print(
-                f"[{server_id}] Heartbeat Error:",
+                f"[{NODE_ID}] Heartbeat Error:",
                 e
             )
 
         time.sleep(2)
+
+
 def am_i_primary():
 
     try:
@@ -143,6 +145,14 @@ def synchronize_from_primary():
         if primary_response.primary_id == NODE_ID:
             return
 
+        if not primary_response.primary_address:
+
+            print(
+                f"[{NODE_ID}] No valid primary yet"
+            )
+
+            return
+        
         channel = grpc.insecure_channel(
             primary_response.primary_address
         )
