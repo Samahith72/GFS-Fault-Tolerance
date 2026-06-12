@@ -13,6 +13,13 @@ from master.heartbeat_monitor import update
 import threading
 from master.election import elect_primary
 
+from master.file_metadata_db import (
+    init_file_db,
+    save_file,
+    load_files,
+    delete_file
+)
+
 from master.heartbeat_monitor import (
     check_servers
 )
@@ -23,10 +30,6 @@ from master.lease_manager import (
     get_remaining
 )
 
-from master.metadata_db import (
-    init_db,
-    load_primary
-)
 from master.metadata_db import (
     init_db,
     load_primary,
@@ -87,6 +90,9 @@ class MasterService(
         del metadata.file_table[
             filename
         ]
+        delete_file(
+            filename
+        )
 
         print(
             f"[MASTER] Deleted "
@@ -122,9 +128,13 @@ class MasterService(
             request.chunks
         )
 
+        save_file(
+            request.filename,
+            request.chunks
+        )
+
         print(
-            f"[MASTER] "
-            f"Registered File "
+            f"[MASTER] Registered "
             f"{request.filename}"
         )
 
@@ -206,7 +216,7 @@ class MasterService(
             metadata.nodes.keys()
         )
 
-        if metadata.primary in metadata.nodes:
+        if ( metadata.primary in metadata.nodes and metadata.nodes[ metadata.primary]["status"] == "UP" ):
 
             return gfs_pb2.PrimaryResponse(
                 primary_id=metadata.primary,
@@ -274,7 +284,7 @@ class MasterService(
                 f"{metadata.primary}"
             )
 
-        elif metadata.primary not in metadata.nodes:
+        elif ( metadata.primary not in metadata.nodes  or metadata.nodes.get(  metadata.primary,{} ).get("status") != "UP"):
 
             metadata.primary = request.node_id
 
@@ -304,9 +314,21 @@ def serve():
     init_db()
 
     metadata.primary = load_primary()
+    if metadata.primary == "":
+     metadata.primary = None
 
     print(
         f"[MASTER] Loaded Primary: {metadata.primary}"
+    )
+    init_file_db()
+
+    metadata.file_table = (
+        load_files()
+    )
+
+    print(
+        "[MASTER] Files Loaded:",
+        metadata.file_table.keys()
     )
     server.start()
 
