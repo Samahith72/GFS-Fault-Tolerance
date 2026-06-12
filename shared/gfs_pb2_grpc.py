@@ -64,6 +64,16 @@ class MasterServiceStub:
                 request_serializer=gfs__pb2.Empty.SerializeToString,
                 response_deserializer=gfs__pb2.HeartbeatAck.FromString,
                 _registered_method=True)
+        self.RegisterFile = channel.unary_unary(
+                '/gfs.MasterService/RegisterFile',
+                request_serializer=gfs__pb2.FileMetadata.SerializeToString,
+                response_deserializer=gfs__pb2.StatusResponse.FromString,
+                _registered_method=True)
+        self.GetFile = channel.unary_unary(
+                '/gfs.MasterService/GetFile',
+                request_serializer=gfs__pb2.FileRequest.SerializeToString,
+                response_deserializer=gfs__pb2.FileMetadata.FromString,
+                _registered_method=True)
 
 
 class MasterServiceServicer:
@@ -105,6 +115,18 @@ class MasterServiceServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def RegisterFile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetFile(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MasterServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -137,6 +159,16 @@ def add_MasterServiceServicer_to_server(servicer, server):
                     servicer.MasterHeartbeat,
                     request_deserializer=gfs__pb2.Empty.FromString,
                     response_serializer=gfs__pb2.HeartbeatAck.SerializeToString,
+            ),
+            'RegisterFile': grpc.unary_unary_rpc_method_handler(
+                    servicer.RegisterFile,
+                    request_deserializer=gfs__pb2.FileMetadata.FromString,
+                    response_serializer=gfs__pb2.StatusResponse.SerializeToString,
+            ),
+            'GetFile': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetFile,
+                    request_deserializer=gfs__pb2.FileRequest.FromString,
+                    response_serializer=gfs__pb2.FileMetadata.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -301,6 +333,60 @@ class MasterService:
             '/gfs.MasterService/MasterHeartbeat',
             gfs__pb2.Empty.SerializeToString,
             gfs__pb2.HeartbeatAck.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RegisterFile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/gfs.MasterService/RegisterFile',
+            gfs__pb2.FileMetadata.SerializeToString,
+            gfs__pb2.StatusResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetFile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/gfs.MasterService/GetFile',
+            gfs__pb2.FileRequest.SerializeToString,
+            gfs__pb2.FileMetadata.FromString,
             options,
             channel_credentials,
             insecure,

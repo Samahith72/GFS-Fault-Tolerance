@@ -20,6 +20,11 @@ service MasterService {
       returns (NodeList);
   rpc MasterHeartbeat(Empty)
       returns (HeartbeatAck);
+  rpc RegisterFile(FileMetadata)
+      returns (StatusResponse);
+
+  rpc GetFile(FileRequest)
+      returns (FileMetadata);
 
 }
 
@@ -83,6 +88,18 @@ message RegisterResponse {
 message ChunkList {
 
   repeated string chunks = 1;
+}
+
+message FileRequest {
+
+  string filename = 1;
+}
+
+message FileMetadata {
+
+  string filename = 1;
+
+  repeated string chunks = 2;
 }
 
 message StatusResponse {

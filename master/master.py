@@ -36,6 +36,44 @@ class MasterService(
     gfs_pb2_grpc.MasterServiceServicer
 ):
     
+    def RegisterFile(
+        self,
+        request,
+        context
+    ):
+
+        metadata.file_table[
+            request.filename
+        ] = list(
+            request.chunks
+        )
+
+        print(
+            f"[MASTER] "
+            f"Registered File "
+            f"{request.filename}"
+        )
+
+        return gfs_pb2.StatusResponse(
+            primary="OK"
+        )
+    
+    def GetFile(
+        self,
+        request,
+        context
+    ):
+
+        chunks = metadata.file_table.get(
+            request.filename,
+            []
+        )
+
+        return gfs_pb2.FileMetadata(
+            filename=request.filename,
+            chunks=chunks
+        )
+    
     def MasterHeartbeat(
         self,
         request,
@@ -45,6 +83,8 @@ class MasterService(
         return gfs_pb2.HeartbeatAck(
             status="MASTER_ALIVE"
         )
+    
+
         
     def GetNodes(
     self,

@@ -8,6 +8,8 @@ class Metadata:
 
         self.nodes = {}
 
+        self.file_table = {}
+
         self.lease_expiry = (
             time.time() + 10
         )
