@@ -5,7 +5,7 @@ import grpc
 
 from shared import gfs_pb2
 from shared import gfs_pb2_grpc
-from shared.config import SERVERS
+#from shared.config import SERVERS
 
 
 from master.metadata import metadata

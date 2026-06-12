@@ -8,7 +8,7 @@ import socket
 
 from shared import gfs_pb2
 from shared import gfs_pb2_grpc
-from shared.config import SERVERS
+
 
 #from shared.config import MASTER_ADDRESS
 MASTER_ADDRESS = "localhost:5050"
@@ -76,36 +76,52 @@ def am_i_primary():
 
         return False
     
-def replicate_to_secondaries(chunk_id, data):
+def replicate_to_secondaries(
+    chunk_id,
+    data
+):
 
-    for sid, address in SERVERS.items():
+    nodes = get_active_nodes()
 
-        if sid == server_id:
+    for node in nodes:
+
+        if node.node_id == NODE_ID:
             continue
 
         try:
 
-            channel = grpc.insecure_channel(address)
-
-            stub = gfs_pb2_grpc.ChunkServiceStub(
-                channel
+            channel = grpc.insecure_channel(
+                node.address
             )
 
-            response = stub.ReplicateChunk(
+            stub = (
+                gfs_pb2_grpc
+                .ChunkServiceStub(
+                    channel
+                )
+            )
+
+            stub.ReplicateChunk(
+
                 gfs_pb2.WriteRequest(
+
                     chunk_id=chunk_id,
+
                     data=data
                 )
             )
 
             print(
-                f"[{server_id}] replicated to {sid}"
+                f"[{NODE_ID}] "
+                f"replicated to "
+                f"{node.node_id}"
             )
 
         except Exception as e:
 
             print(
-                f"Replication failed to {sid}: {e}"
+                f"Replication failed "
+                f"to {node.node_id}: {e}"
             )
 def synchronize_from_primary():
 
@@ -198,6 +214,32 @@ def register_with_master():
             "Registration Failed:",
             e
         )
+
+def get_active_nodes():
+
+    try:
+
+        channel = grpc.insecure_channel(
+            MASTER_ADDRESS
+        )
+
+        stub = gfs_pb2_grpc.MasterServiceStub(
+            channel
+        )
+
+        response = stub.GetNodes(
+            gfs_pb2.Empty()
+        )
+
+        return response.nodes
+
+    except Exception as e:
+
+        print(
+            f"GetNodes failed: {e}"
+        )
+
+        return []
 
 
 class ChunkService(
