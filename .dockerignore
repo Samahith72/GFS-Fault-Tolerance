@@ -2,6 +2,6 @@ venv
 .git
 __pycache__
 *.pyc
-__MACOSX
-downloads
 storage
+downloads
+__MACOSX

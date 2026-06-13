@@ -19,8 +19,12 @@ KNOWN_NODES = set()
 
 KNOWN_NODE_ADDR = {}
 
-#from shared.config import MASTER_ADDRESS
-MASTER_ADDRESS = "localhost:5050"
+import os
+
+MASTER_ADDRESS = os.getenv(
+    "MASTER_ADDRESS",
+    "localhost:5050"
+)
 
 server_id = None
 storage_dir = None

@@ -4,7 +4,12 @@ import os
 from shared import gfs_pb2
 from shared import gfs_pb2_grpc
 
-MASTER = "localhost:5050"
+import os
+
+MASTER = os.getenv(
+    "MASTER_ADDRESS",
+    "localhost:5050"
+)
 
 CHUNK_SIZE = 1024
 
