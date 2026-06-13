@@ -204,7 +204,11 @@ class MasterService(
             lease_remaining=get_remaining(metadata)
         )
 
-    def GetPrimary(self, request, context):
+    def GetPrimary(
+        self,
+        request,
+        context
+    ):
 
         print(
             "PRIMARY:",
@@ -216,7 +220,12 @@ class MasterService(
             metadata.nodes.keys()
         )
 
-        if ( metadata.primary in metadata.nodes and metadata.nodes[ metadata.primary]["status"] == "UP" ):
+        if (
+            metadata.primary in metadata.nodes
+            and metadata.nodes[
+                metadata.primary
+            ]["status"] == "UP"
+        ):
 
             return gfs_pb2.PrimaryResponse(
                 primary_id=metadata.primary,
@@ -224,10 +233,6 @@ class MasterService(
                     metadata.nodes[
                         metadata.primary
                     ]["address"]
-            )
-        print(
-                f"[MASTER] Invalid Primary: "
-                f"{metadata.primary}"
             )
 
         return gfs_pb2.PrimaryResponse(

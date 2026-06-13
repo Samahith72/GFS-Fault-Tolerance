@@ -8,8 +8,9 @@ import socket
 
 from shared import gfs_pb2
 from shared import gfs_pb2_grpc
+global KNOWN_NODES
 
-local_master_server = None
+
 
 MASTER_MISSES = 0
 
@@ -18,13 +19,27 @@ IS_MASTER = False
 KNOWN_NODES = set()
 
 KNOWN_NODE_ADDR = {}
+local_master_server = None
 
 import os
 
-MASTER_ADDRESS = os.getenv(
+'''MASTER_ADDRESS = os.getenv(
     "MASTER_ADDRESS",
     "localhost:5050"
-)
+)'''
+
+MASTER_ADDRESS = "master:5050"
+
+def set_master(addr):
+
+    global MASTER_ADDRESS
+
+    MASTER_ADDRESS = addr
+
+    print(
+        f"[{NODE_ID}] New Master = "
+        f"{MASTER_ADDRESS}"
+    )
 
 server_id = None
 storage_dir = None
@@ -123,54 +138,29 @@ def monitor_master():
 
 def elect_new_master():
 
-    global KNOWN_NODES
+    global MASTER_ADDRESS
 
     print(
         f"[{NODE_ID}] Starting election"
     )
 
-    KNOWN_NODES.add(
-        NODE_ID
-    )
+    alive = {
+        "node1",
+        "node2",
+        "node3"
+    }
 
     print(
-        f"[{NODE_ID}] Known Nodes = "
-        f"{KNOWN_NODES}"
+        f"[{NODE_ID}] Known Nodes = {alive}"
     )
 
-    candidates = []
-
-    for node in KNOWN_NODES:
-
-        try:
-
-            node_num = int(
-                node.split("-")[-1]
-            )
-
-            candidates.append(
-                (node_num, node)
-            )
-
-        except Exception:
-            pass
-
-    if not candidates:
-
-        print(
-            f"[{NODE_ID}] No candidates"
-        )
-
-        return
-
-    winner = max(candidates)[1]
+    winner = sorted(alive)[-1]
 
     print(
-        f"[ELECTION] Winner = "
-        f"{winner}"
+        f"[ELECTION] Winner = {winner}"
     )
 
-    if winner == NODE_ID and not IS_MASTER:
+    if winner == NODE_ID:
 
         print(
             f"[{NODE_ID}] "
@@ -178,6 +168,41 @@ def elect_new_master():
         )
 
         become_master()
+
+        set_master(
+            "localhost:5050"
+        )
+
+    else:
+
+        winner_port = KNOWN_NODE_ADDR[
+            winner
+        ]
+
+        master_addr = (
+            winner_port
+            .replace(
+                ":5001",
+                ":5050"
+            )
+            .replace(
+                ":5002",
+                ":5050"
+            )
+            .replace(
+                ":5003",
+                ":5050"
+            )
+        )
+
+        set_master(
+            master_addr
+        )
+
+        print(
+            f"[{NODE_ID}] "
+            f"Following {master_addr}"
+        )
 
 def membership_refresh_loop():
 
@@ -204,21 +229,17 @@ def membership_refresh_loop():
 class LocalMasterService(
     gfs_pb2_grpc.MasterServiceServicer
 ):
-    def Heartbeat(
+
+    def MasterHeartbeat(
         self,
         request,
         context
     ):
 
-        print(
-            f"[{NODE_ID}] "
-            f"FOLLOWER HEARTBEAT RECEIVED"
+        return gfs_pb2.HeartbeatAck(
+            status="MASTER_ALIVE"
         )
 
-        return gfs_pb2.HeartbeatAck(
-            status="OK"
-        )
-        
     def GetPrimary(
         self,
         request,
@@ -227,22 +248,11 @@ class LocalMasterService(
 
         return gfs_pb2.PrimaryResponse(
             primary_id=NODE_ID,
-            primary_address=f"localhost:{5000 + int(server_id)}"
-        )
-
-    def MasterHeartbeat(
-        self,
-        request,
-        context
-    ):
-
-        print(
-            f"[{NODE_ID}] "
-            f"MASTER HEARTBEAT RECEIVED"
-        )
-
-        return gfs_pb2.HeartbeatAck(
-            status="MASTER_ALIVE"
+            primary_address=
+                KNOWN_NODE_ADDR.get(
+                    NODE_ID,
+                    f"node{server_id}:{5000 + int(server_id)}"
+                )
         )
 
     def GetNodes(
@@ -253,31 +263,30 @@ class LocalMasterService(
 
         response = gfs_pb2.NodeList()
 
-        for node_id in KNOWN_NODES:
+        for node_id, address in KNOWN_NODE_ADDR.items():
 
             entry = response.nodes.add()
 
             entry.node_id = node_id
 
-            entry.address = (
-                KNOWN_NODE_ADDR.get(
-                    node_id,
-                    ""
-                )
-            )
+            entry.address = address
 
         return response
+
+    def Heartbeat(
+        self,
+        request,
+        context
+    ):
+
+        return gfs_pb2.HeartbeatAck(
+            status="OK"
+        )
 
 
 def become_master():
 
-    global IS_MASTER
     global local_master_server
-
-    if IS_MASTER:
-        return
-
-    IS_MASTER = True
 
     print(
         f"[{NODE_ID}] "
@@ -304,6 +313,10 @@ def become_master():
     print(
         f"[{NODE_ID}] "
         f"MASTER STARTED ON PORT 5050"
+    )
+
+    set_master(
+        "localhost:5050"
     )
 
 def am_i_primary():
@@ -467,6 +480,7 @@ def synchronize_from_primary():
 def register_with_master():
 
     global KNOWN_NODE_ADDR
+    global KNOWN_NODES
 
     try:
 
@@ -478,18 +492,20 @@ def register_with_master():
             channel
         )
 
-        my_ip = socket.gethostbyname(
-            socket.gethostname()
-        )
-
         address = (
-            f"{my_ip}:"
+            f"node{server_id}:"
             f"{5000 + int(server_id)}"
         )
 
-        KNOWN_NODE_ADDR[
-            NODE_ID
-        ] = address
+        KNOWN_NODE_ADDR["node1"] = "node1:5001"
+        KNOWN_NODE_ADDR["node2"] = "node2:5002"
+        KNOWN_NODE_ADDR["node3"] = "node3:5003"
+
+        KNOWN_NODES = {
+            "node1",
+            "node2",
+            "node3"
+        }
 
         response = stub.RegisterNode(
 
@@ -511,7 +527,6 @@ def register_with_master():
             "Registration Failed:",
             e
         )
-
 def get_active_nodes():
 
     global KNOWN_NODES
@@ -775,7 +790,7 @@ if __name__ == "__main__":
 
     hostname = socket.gethostname()
 
-    NODE_ID = f"{hostname}-{server_id}"
+    NODE_ID = f"node{server_id}"
 
     storage_dir = f"storage/server{server_id}"
 
