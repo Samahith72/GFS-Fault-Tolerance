@@ -28,7 +28,8 @@ import os
     "localhost:5050"
 )'''
 
-MASTER_ADDRESS = "master:5050"
+#MASTER_ADDRESS = "master:5050"
+MASTER_ADDRESS = "10.225.7.186:5050"
 
 def set_master(addr):
 
@@ -166,11 +167,14 @@ def elect_new_master():
             f"[{NODE_ID}] "
             f"I AM THE NEW MASTER"
         )
-
         become_master()
 
+        my_ip = KNOWN_NODE_ADDR[
+            NODE_ID
+        ].split(":")[0]
+
         set_master(
-            "localhost:5050"
+            f"{my_ip}:5050"
         )
 
     else:
@@ -249,10 +253,9 @@ class LocalMasterService(
         return gfs_pb2.PrimaryResponse(
             primary_id=NODE_ID,
             primary_address=
-                KNOWN_NODE_ADDR.get(
-                    NODE_ID,
-                    f"node{server_id}:{5000 + int(server_id)}"
-                )
+                KNOWN_NODE_ADDR[
+                    NODE_ID
+                ]
         )
 
     def GetNodes(
@@ -315,8 +318,17 @@ def become_master():
         f"MASTER STARTED ON PORT 5050"
     )
 
+    print(
+        f"[{NODE_ID}] "
+        f"MASTER STARTED ON PORT 5050"
+    )
+
+    my_ip = KNOWN_NODE_ADDR[
+        NODE_ID
+    ].split(":")[0]
+
     set_master(
-        "localhost:5050"
+        f"{my_ip}:5050"
     )
 
 def am_i_primary():
@@ -492,14 +504,22 @@ def register_with_master():
             channel
         )
 
+        NODE_IPS = {
+            "1": "10.225.7.117",
+            "2": "10.225.7.138",
+            "3": "10.225.7.254"
+        }
+
         address = (
-            f"node{server_id}:"
+            f"{NODE_IPS[server_id]}:"
             f"{5000 + int(server_id)}"
         )
 
-        KNOWN_NODE_ADDR["node1"] = "node1:5001"
-        KNOWN_NODE_ADDR["node2"] = "node2:5002"
-        KNOWN_NODE_ADDR["node3"] = "node3:5003"
+        KNOWN_NODE_ADDR = {
+            "node1": "10.225.7.117:5001",
+            "node2": "10.225.7.138:5002",
+            "node3": "10.225.7.254:5003"
+        }
 
         KNOWN_NODES = {
             "node1",
@@ -517,9 +537,7 @@ def register_with_master():
             )
         )
 
-        print(
-            response.status
-        )
+        print(response.status)
 
     except Exception as e:
 
@@ -527,6 +545,8 @@ def register_with_master():
             "Registration Failed:",
             e
         )
+
+
 def get_active_nodes():
 
     global KNOWN_NODES
